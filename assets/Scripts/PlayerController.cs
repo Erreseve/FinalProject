@@ -12,7 +12,8 @@ public class PlayerController : MonoBehaviour {
 	Rigidbody rb;
 	bool carryingImmigrant;
 	Immigrant immigrantCarried; 
-	float immigrantReleaseCooldown;
+	float immigrantReleaseCooldown = 1f;
+    float timeSinceRelease;
 
 	void Start()
 	{
@@ -27,24 +28,26 @@ public class PlayerController : MonoBehaviour {
 			if (carryingImmigrant)
 			{
 				immigrantCarried.ReleasedByPlayer (false);
-				immigrantReleaseCooldown = .5f;
+				timeSinceRelease = 0;
 				immigrantCarried = null;
 				carryingImmigrant = false;
 			}
 		}
-		immigrantReleaseCooldown -= Time.deltaTime;
-		immigrantReleaseCooldown = Mathf.Clamp01(immigrantReleaseCooldown);
+		timeSinceRelease += Time.deltaTime;
+		timeSinceRelease = Mathf.Clamp(timeSinceRelease, 0, immigrantReleaseCooldown);
 
-		rb.velocity = Vector3.zero;
-		rb.angularVelocity = Vector3.zero;
+        //ensure the player can't be rotated by forces applied by immigrants
+        rb.velocity = Vector3.zero; 
+		rb.angularVelocity = Vector3.zero; 
+        //note player needs to be kinematic
 	}
 
 	void OnCollisionStay (Collision collisionInfo)
 	{
-		if (collisionInfo.gameObject.tag == "Immigrant")
+		if (collisionInfo.gameObject.tag == "Immigrant") //on collision with an immigrant, enable picking up
 		{
-			if (Input.GetKeyUp (KeyCode.Space) && !carryingImmigrant && immigrantReleaseCooldown <= 0)
-			{
+			if (Input.GetKeyUp (KeyCode.Space) && !carryingImmigrant && timeSinceRelease >= immigrantReleaseCooldown) 
+			{ //unless we are already carrying one or have recently released one
 				Debug.Log ("Picked up immigrant!");
 				carryingImmigrant = true;
 				immigrantCarried = collisionInfo.gameObject.GetComponent < Immigrant> ();
@@ -53,7 +56,31 @@ public class PlayerController : MonoBehaviour {
 		}
 	}
 
-	void FixedUpdate () 
+    void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.tag == "Retrieval Zone") //Player is in a retrieval zone
+        {
+            Debug.Log("On " + other.transform.parent.name+ "'s retrieval zone...");
+            if (Input.GetKeyUp(KeyCode.Space) && carryingImmigrant) //Player wants to drop the current immigrant
+            {
+                Country country = other.GetComponentInParent<Country>();
+                Debug.Log("On trigger, releasing immigrant...");
+                if (country.tag == immigrantCarried.country) //the immigrant belongs to that country
+                {
+                    country.SendMessage("TakeImmigrant", immigrantCarried); //make country add immigrant to its queue
+                    immigrantCarried.ReleasedByPlayer(true);
+                }
+                else
+                    immigrantCarried.ReleasedByPlayer(false);
+
+                timeSinceRelease = 0;
+                immigrantCarried = null;
+                carryingImmigrant = false;
+            }
+        }
+    }
+
+    void FixedUpdate () 
 	{
 		moveDir = new Vector3 (Input.GetAxisRaw ("Horizontal"), 0, Input.GetAxisRaw ("Vertical"));
 		if (moveDir.sqrMagnitude > 1f)

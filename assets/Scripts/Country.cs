@@ -45,14 +45,16 @@ public class Country : MonoBehaviour {
 	//Triggered by player, when colliding with retrievalZone's collider and presing the appropiate button
 	void TakeImmigrant(Immigrant immigrant)
 	{
-		//check before if the immigrant belongs to this country or is wild card
+        Debug.Log(name + "taking immigrant...");
 		immigrantsAdquired++;
 		if (immigrantsAdquired == maxImmigrants)
 			adquiredAllImmigrants = true;
 
 		immigrantQ.Enqueue (immigrant);
 		immigrant.GetComponent<Collider> ().enabled = false;
-		//LaunchImmigrant(immigrantStoreZone.position, immigrant)
+        LaunchImmigrant(immigrantStoreZone.position, immigrant);
+        Debug.Log("Retrieved");
+        Debug.Log(immigrantQ.Count);
 	}
 
 	public void LaunchImmigrant(Vector3 target, Immigrant immigrant) 

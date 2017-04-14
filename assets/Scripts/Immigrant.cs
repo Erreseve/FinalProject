@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-[RequireComponent (typeof (Rigidbody))]
+[RequireComponent(typeof(Rigidbody))]
 public class Immigrant : MonoBehaviour {
 
-	public bool freeToMove = false;
-	public string country = "";
+    public bool freeToMove = false;
+    public string country = "";
 
 	Rigidbody rb;
 	NavMeshAgent nav;
@@ -67,7 +67,7 @@ public class Immigrant : MonoBehaviour {
 
 	public void ReleasedByPlayer(bool releaseToRetrieve)
 	{
-		if (!releaseToRetrieve)
+		if (!releaseToRetrieve) //the immigrant was released to walk freely on the field again
 		{
             StartCoroutine(Restore(true, .5f));
 			coll.enabled = true;
