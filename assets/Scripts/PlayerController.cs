@@ -6,9 +6,17 @@ public class PlayerController : MonoBehaviour {
 
 	public float movementSpeed = 10f; 
 	public float speedReduction = 3f;
-	public Transform immigrantHoldPosition;
+
+    //each axis gets added the playerID number when utilized
+    const string horizontalInputAxis = "Horizontal_P"; //name of the general horizontal input 
+    const string verticalInputAxis = "Vertical_P"; //name of the general vertical input axis 
+    const string actionInputAxis = "Action_P"; //name of the general action input axis 
+
+    [HideInInspector]
+    public int playerID; //the number of the player (from 1 to 4)
+	public Transform immigrantHoldPosition; //the position where the player will hold the immigrant when grabbed
+
 	Vector3 moveDir;
-	Vector3 prevMoveDir;
 	Rigidbody rb;
 	bool carryingImmigrant;
 	Immigrant immigrantCarried; 
@@ -17,13 +25,14 @@ public class PlayerController : MonoBehaviour {
 
 	void Start()
 	{
+        playerID = 1; //remove
 		rb = GetComponent<Rigidbody> ();
 		carryingImmigrant = false;
 	}
 
 	void Update()
 	{
-		if (Input.GetKeyDown (KeyCode.Space))
+		if (Input.GetButtonDown (actionInputAxis + playerID.ToString()))
 		{
 			if (carryingImmigrant)
 			{
@@ -46,7 +55,7 @@ public class PlayerController : MonoBehaviour {
 	{
 		if (collisionInfo.gameObject.tag == "Immigrant") //on collision with an immigrant, enable picking up
 		{
-			if (Input.GetKeyUp (KeyCode.Space) && !carryingImmigrant && timeSinceRelease >= immigrantReleaseCooldown) 
+			if (Input.GetButtonDown (actionInputAxis + playerID.ToString()) && !carryingImmigrant && timeSinceRelease >= immigrantReleaseCooldown) 
 			{ //unless we are already carrying one or have recently released one
 				Debug.Log ("Picked up immigrant!");
 				carryingImmigrant = true;
@@ -61,7 +70,8 @@ public class PlayerController : MonoBehaviour {
         if (other.gameObject.tag == "Retrieval Zone") //Player is in a retrieval zone
         {
             Debug.Log("On " + other.transform.parent.name+ "'s retrieval zone...");
-            if (Input.GetKeyUp(KeyCode.Space) && carryingImmigrant) //Player wants to drop the current immigrant
+
+            if (Input.GetButtonDown(actionInputAxis + playerID.ToString()) && carryingImmigrant) //Player wants to drop the current immigrant
             {
                 Country country = other.GetComponentInParent<Country>();
                 Debug.Log("On trigger, releasing immigrant...");
@@ -82,7 +92,7 @@ public class PlayerController : MonoBehaviour {
 
     void FixedUpdate () 
 	{
-		moveDir = new Vector3 (Input.GetAxisRaw ("Horizontal"), 0, Input.GetAxisRaw ("Vertical"));
+		moveDir = new Vector3 (Input.GetAxisRaw (horizontalInputAxis + playerID.ToString()), 0, Input.GetAxisRaw (verticalInputAxis + playerID.ToString()));
 		if (moveDir.sqrMagnitude > 1f)
 			moveDir = moveDir.normalized;
 
