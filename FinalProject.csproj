@@ -52,6 +52,9 @@
     <Reference Include="UnityEngine">
       <HintPath>Library\UnityAssemblies\UnityEngine.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.Advertisements">
+      <HintPath>Library\UnityAssemblies\UnityEngine.Advertisements.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
@@ -67,6 +70,9 @@
     <Reference Include="UnityEngine.HoloLens">
       <HintPath>Library\UnityAssemblies\UnityEngine.HoloLens.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.Purchasing">
+      <HintPath>Library\UnityAssemblies\UnityEngine.Purchasing.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.VR">
       <HintPath>Library\UnityAssemblies\UnityEngine.VR.dll</HintPath>
     </Reference>
@@ -79,57 +85,8 @@
     <Reference Include="UnityEditor.iOS.Extensions.Common">
       <HintPath>Library\UnityAssemblies\UnityEditor.iOS.Extensions.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>assets\Builds\MMGAv0.230_Data\Managed\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Security">
-      <HintPath>assets\Builds\MMGAv0.230_Data\Managed\Mono.Security.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Core">
-      <HintPath>assets\Builds\MMGAv0.230_Data\Managed\System.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System">
-      <HintPath>assets\Builds\MMGAv0.230_Data\Managed\System.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Analytics">
-      <HintPath>assets\Builds\MMGAv0.230_Data\Managed\UnityEngine.Analytics.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Networking">
-      <HintPath>assets\Builds\MMGAv0.230_Data\Managed\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.PlaymodeTestsRunner">
-      <HintPath>assets\Builds\MMGAv0.230_Data\Managed\UnityEngine.PlaymodeTestsRunner.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>assets\Builds\MMGAv0.230_Data\Managed\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Core">
-      <HintPath>assets\Builds\MMGAv0.230_Data\Managed\System.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Security">
-      <HintPath>assets\Builds\MMGAv0.230_Data\Managed\Mono.Security.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>assets\Builds\MMGAv0.230_Data\Managed\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Analytics">
-      <HintPath>assets\Builds\MMGAv0.230_Data\Managed\UnityEngine.Analytics.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.PlaymodeTestsRunner">
-      <HintPath>assets\Builds\MMGAv0.230_Data\Managed\UnityEngine.PlaymodeTestsRunner.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>assets\Builds\MMGAv0.230_Data\Managed\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Networking">
-      <HintPath>assets\Builds\MMGAv0.230_Data\Managed\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="System">
-      <HintPath>assets\Builds\MMGAv0.230_Data\Managed\System.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="assets\Builds\MMGAv0.230_Data\Managed\Assembly-CSharp.dll" />
     <Compile Include="assets\Scripts\AudioManager.cs" />
     <Compile Include="assets\Scripts\Country.cs" />
     <Compile Include="assets\Scripts\GameManager.cs" />
@@ -140,10 +97,6 @@
     <Compile Include="assets\Scripts\SoundLibrary.cs" />
     <Compile Include="assets\Scripts\UIButtonManager.cs" />
     <Compile Include="assets\Scripts\Util.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="assets\Builds\MMGAv0.230_Data\Mono\etc\mono\mconfig\config.xml" />
-    <None Include="assets\Builds\MMGAv0.230_Data\output_log.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
