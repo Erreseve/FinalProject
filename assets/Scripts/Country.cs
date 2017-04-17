@@ -43,7 +43,7 @@ public class Country : MonoBehaviour {
 	}
 
 	//Triggered by player, when colliding with retrievalZone's collider and presing the appropiate button
-	void TakeImmigrant(Immigrant immigrant)
+	public void TakeImmigrant(Immigrant immigrant)
 	{
         Debug.Log(name + "taking immigrant...");
 		immigrantsAdquired++;
@@ -90,8 +90,8 @@ public class Country : MonoBehaviour {
 		for (int i = 0; i < maxImmigrants; i++)
 		{
 			GameObject instance = Instantiate (immigratePrefab, Vector3.zero, Quaternion.identity);
-		
-			float compensationY = instance.GetComponent<Collider> ().bounds.extents.y; //compensate for the height of the mesh
+
+            float compensationY = instance.GetComponent<Collider> ().bounds.extents.y + transform.position.y; //compensate for the height of the mesh
 			float compensationZ = instance.GetComponent<Collider> ().bounds.size.z * 1.5f; //place them next to each other
 
 			Vector3 offset = Vector3.up*compensationY + Vector3.forward * compensationZ * i;

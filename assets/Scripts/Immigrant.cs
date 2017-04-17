@@ -22,7 +22,8 @@ public class Immigrant : MonoBehaviour {
 		rb = GetComponent<Rigidbody> ();
 		nav = GetComponent<NavMeshAgent> ();
 		coll = GetComponent<Collider> ();
-	}
+        rb.useGravity = true;
+    }
 
 	void Update()
 	{
@@ -54,11 +55,15 @@ public class Immigrant : MonoBehaviour {
 		{
 			transform.position = playerHold.position;
 		}
+        else
+        {
+            transform.position = new Vector3(transform.position.x, 0 + coll.bounds.extents.y, transform.position.z);
+        }
 	}
 
 	public void Launch(Vector3 v0, float time, bool canMoveAfterLanding)
 	{
-		rb.useGravity = true; 
+        rb.useGravity = true;
 		rb.velocity = v0;
 		GetComponent<Collider>().enabled = true;
 

@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour {
 	bool carryingImmigrant;
 	Immigrant immigrantCarried; 
 	float immigrantReleaseCooldown = 1f;
-    float timeSinceRelease;
+    float timeSinceAction;
 
 	void Start()
 	{
@@ -32,18 +32,18 @@ public class PlayerController : MonoBehaviour {
 
 	void Update()
 	{
-		if (Input.GetButtonDown (actionInputAxis + playerID.ToString()))
+		if (Input.GetButtonDown (actionInputAxis + playerID.ToString()) && timeSinceAction >= immigrantReleaseCooldown)
 		{
 			if (carryingImmigrant)
 			{
 				immigrantCarried.ReleasedByPlayer (false);
-				timeSinceRelease = 0;
+				timeSinceAction = 0;
 				immigrantCarried = null;
 				carryingImmigrant = false;
 			}
 		}
-		timeSinceRelease += Time.deltaTime;
-		timeSinceRelease = Mathf.Clamp(timeSinceRelease, 0, immigrantReleaseCooldown);
+		timeSinceAction += Time.deltaTime;
+		timeSinceAction = Mathf.Clamp(timeSinceAction, 0, immigrantReleaseCooldown);
 
         //ensure the player can't be rotated by forces applied by immigrants
         rb.velocity = Vector3.zero; 
@@ -55,12 +55,13 @@ public class PlayerController : MonoBehaviour {
 	{
 		if (collisionInfo.gameObject.tag == "Immigrant") //on collision with an immigrant, enable picking up
 		{
-			if (Input.GetButtonDown (actionInputAxis + playerID.ToString()) && !carryingImmigrant && timeSinceRelease >= immigrantReleaseCooldown) 
+			if (Input.GetButtonDown (actionInputAxis + playerID.ToString()) && !carryingImmigrant && timeSinceAction >= immigrantReleaseCooldown) 
 			{ //unless we are already carrying one or have recently released one
 				Debug.Log ("Picked up immigrant!");
 				carryingImmigrant = true;
-				immigrantCarried = collisionInfo.gameObject.GetComponent < Immigrant> ();
+				immigrantCarried = collisionInfo.gameObject.GetComponent <Immigrant> ();
 				immigrantCarried.PickedByPlayer (immigrantHoldPosition);
+                timeSinceAction = 0;
 			}
 		}
 	}
@@ -69,21 +70,19 @@ public class PlayerController : MonoBehaviour {
     {
         if (other.gameObject.tag == "Retrieval Zone") //Player is in a retrieval zone
         {
-            Debug.Log("On " + other.transform.parent.name+ "'s retrieval zone...");
-
             if (Input.GetButtonDown(actionInputAxis + playerID.ToString()) && carryingImmigrant) //Player wants to drop the current immigrant
             {
                 Country country = other.GetComponentInParent<Country>();
                 Debug.Log("On trigger, releasing immigrant...");
                 if (country.tag == immigrantCarried.country) //the immigrant belongs to that country
                 {
-                    country.SendMessage("TakeImmigrant", immigrantCarried); //make country add immigrant to its queue
+                    country.TakeImmigrant(immigrantCarried);//make country add immigrant to its queue
                     immigrantCarried.ReleasedByPlayer(true);
                 }
                 else
                     immigrantCarried.ReleasedByPlayer(false);
 
-                timeSinceRelease = 0;
+                timeSinceAction = 0;
                 immigrantCarried = null;
                 carryingImmigrant = false;
             }
