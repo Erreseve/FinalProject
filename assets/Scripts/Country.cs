@@ -34,7 +34,7 @@ public class Country : MonoBehaviour {
 		{
 			if (timeSinceLastLaunch >= timeBetweenImmigrantsLaunches && immigrantQ.Count > 0)
 			{
-				LaunchImmigrant (GameManager.instance.RequestRandomWorldPos(), immigrantQ.Dequeue());// the Immigrant we are launching);
+                GiveImmigrant();
 				timeSinceLastLaunch = 0;
 			}
 			else
@@ -51,38 +51,22 @@ public class Country : MonoBehaviour {
 			adquiredAllImmigrants = true;
 
 		immigrantQ.Enqueue (immigrant);
-		immigrant.GetComponent<Collider> ().enabled = false;
-        LaunchImmigrant(immigrantStoreZone.position, immigrant);
-        Debug.Log("Retrieved");
-        Debug.Log(immigrantQ.Count);
+        
 	}
 
-	public void LaunchImmigrant(Vector3 target, Immigrant immigrant) 
-	{
-		LaunchData launchData = CalculateTrajectory(target, immigrant);//launchHeight: the starting height of the parabolic motion
+    public void GiveImmigrant()
+    {
+        if (immigrantQ.Count > 0)
+        {
+            Immigrant immigrant = immigrantQ.Dequeue();
+            immigrant.SetDestinationOnField();
+        }
+    }
 
-		//decide whether the immigrant is heading to the store zone or to the map, allow movement based on that
-		bool canMoveAfterLanding = Vector3.Distance (target, immigrantStoreZone.position) < 1f ? false : true;
-
-		//immigrant manages his own velocity, we pass the calculated data
-		immigrant.Launch (launchData.initialVelocity, launchData.timeToTarget, canMoveAfterLanding);
-	}
-
-	LaunchData CalculateTrajectory(Vector3 target, Immigrant immigrant)
-	{
-		float gravity = -18f; //custom gravity value
-		Physics.gravity = Vector3.up * gravity;
-		float h = 5f; //h is the highest point in the parabolic motion
-
-		float displacementY = target.y - immigrant.transform.position.y;
-		Vector3 displacementXZ = new Vector3 (target.x - immigrant.transform.position.x, 0, target.z - immigrant.transform.position.z);
-
-		float time = Mathf.Sqrt (-2 * h / gravity) + Mathf.Sqrt(2 * (displacementY - h)/ gravity);
-		Vector3 velocityY = Vector3.up * Mathf.Sqrt (-2 * gravity * h);
-		Vector3 velocityXZ = displacementXZ / time; 
-
-		return new LaunchData (velocityXZ + velocityY * - Mathf.Sign(gravity), time);
-	}
+    public Vector3 RequestRandomCountryPosition()
+    {
+        return Vector3.zero;
+    }
 
 	void InitializeImmigrants()
 	{
@@ -91,7 +75,7 @@ public class Country : MonoBehaviour {
 		{
 			GameObject instance = Instantiate (immigratePrefab, Vector3.zero, Quaternion.identity);
 
-            float compensationY = instance.GetComponent<Collider> ().bounds.extents.y + transform.position.y; //compensate for the height of the mesh
+            float compensationY = instance.GetComponent<Collider> ().bounds.extents.y ; //compensate for the height of the mesh
 			float compensationZ = instance.GetComponent<Collider> ().bounds.size.z * 1.5f; //place them next to each other
 
 			Vector3 offset = Vector3.up*compensationY + Vector3.forward * compensationZ * i;
@@ -102,17 +86,5 @@ public class Country : MonoBehaviour {
 			immigrantQ.Enqueue (instance.GetComponent<Immigrant>());
 		}
 		adquiredAllImmigrants = false;
-	}
-
-	struct LaunchData
-	{
-		public readonly Vector2 initialVelocity;
-		public readonly float timeToTarget;
-
-		public LaunchData (Vector3 u, float t)
-		{
-			initialVelocity = u;
-			timeToTarget = t;
-		}
 	}
 }

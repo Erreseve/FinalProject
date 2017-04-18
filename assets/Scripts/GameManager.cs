@@ -37,7 +37,7 @@ public class GameManager : MonoBehaviour {
 			{
 				for (int countryIndex = 0; countryIndex < countries.Length ; countryIndex++ ) //launch 1 for all countries
 				{
-					countries [countryIndex].LaunchImmigrant( RequestRandomWorldPos(), countries [countryIndex].immigrantQ.Dequeue()); //launch
+                    countries[countryIndex].GiveImmigrant();
 
 					yield return new WaitForSeconds (.1f);
 				}
