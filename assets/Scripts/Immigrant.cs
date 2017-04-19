@@ -6,8 +6,9 @@ using UnityEngine.AI;
 [RequireComponent(typeof(Rigidbody))]
 public class Immigrant : MonoBehaviour {
 
-    public bool freeToMove = false;
     public string country = "";
+    public int scoreValue = 1; 
+    Country countryBelongedTo;
 
 	Rigidbody rb;
 	NavMeshAgent nav;
@@ -15,91 +16,102 @@ public class Immigrant : MonoBehaviour {
 	Transform playerHold;
 
 	bool followingPath;
-	bool grabbed;
+	bool grabbedByPlayer;
+    bool onCountry;
+    [HideInInspector]
+    public bool justSpawned;
 
 	void Awake () 
 	{
 		rb = GetComponent<Rigidbody> ();
 		nav = GetComponent<NavMeshAgent> ();
 		coll = GetComponent<Collider> ();
-        rb.useGravity = true;
+
+        GameObject tempObjRef = GameObject.FindWithTag(country);
+        if (tempObjRef != null) //if the country exists (which always should)
+            countryBelongedTo = tempObjRef.GetComponent<Country>();
+
+        onCountry = true; //immigrants are spawned in country
+        justSpawned = true; 
     }
 
-	void Update()
-	{
-		if (freeToMove)
-		{
-			if (!followingPath)
-			{
-				nav.SetDestination (GameManager.instance.RequestRandomWorldPos ());
-				followingPath = true;
-			}
-			else
-			{
-				if (Vector3.Distance (nav.destination, transform.position) < 1f)
-				{
-					followingPath = false;
-				}
-			}
-		}
-		else
-		{
-			if (nav.enabled)
-				nav.ResetPath();
-		}
+    void Update()
+    {
+        if (!justSpawned) //if just spawned, don't move yet
+        { 
+            if (!grabbedByPlayer) //simulate immigrant's wandering
+            {
+                if (!followingPath) //if we don't a destination, get one
+                {
+                    if (onCountry) //request only paths within country navmesh
+                        SetDestinationOnCountry();
+                    else //request only paths within field navmesh
+                        SetDestinationOnField();
+                }
+                else
+                {
+                    if (Vector3.Distance(nav.destination, transform.position) < .5f) //pick another waypoint if too close to the current one
+                    {
+                        followingPath = false;
+                    }
+                }
+            }
+            else
+            {
+                nav.ResetPath();
+            }
+        }
 	}
 
 	void LateUpdate()
 	{
-		if (grabbed)
-		{
-			transform.position = playerHold.position;
-		}
-        else
+        if (!justSpawned)
         {
-            transform.position = new Vector3(transform.position.x, 0 + coll.bounds.extents.y, transform.position.z);
+            if (grabbedByPlayer) //keep immigrant at where the player is holding him
+            {
+                transform.position = playerHold.position;
+            }
+            else if (!onCountry) //if immigrant isn't grabbed by player but is in scenario, make sure he is always ground leveled
+            {
+                transform.position = new Vector3(transform.position.x, 0 + coll.bounds.extents.y, transform.position.z);
+            }
         }
 	}
 
-	public void Launch(Vector3 v0, float time, bool canMoveAfterLanding)
-	{
-        rb.useGravity = true;
-		rb.velocity = v0;
-		GetComponent<Collider>().enabled = true;
 
-		StartCoroutine (Restore(canMoveAfterLanding, time));
-	}
+    public void SetDestinationOnCountry()
+    {
+        followingPath = true; 
+        onCountry = true;
+        nav.SetDestination(countryBelongedTo.RequestRandomCountryPosition());
+    }
 
-	public void ReleasedByPlayer(bool releaseToRetrieve)
-	{
-		if (!releaseToRetrieve) //the immigrant was released to walk freely on the field again
-		{
-            StartCoroutine(Restore(true, .5f));
-			coll.enabled = true;
-		}
-		playerHold = null;
-		grabbed = false;
-		followingPath = false;
-	}
+    public void SetDestinationOnField()
+    {
+        followingPath = true;
+        onCountry = false;
+        nav.SetDestination(GameManager.instance.RequestRandomWorldPos());
+    }
 
 	public void PickedByPlayer(Transform playerHold)
 	{
 		this.playerHold = playerHold;
-		freeToMove = false;
-		grabbed = true;
+		grabbedByPlayer = true;
 		nav.ResetPath ();
-        nav.enabled = false;
-		coll.enabled = false;
+
+        //so immigrant doesn't push player while being hold, only place where collider is deactivated
+        coll.enabled = false; 
 	}
 
-	IEnumerator Restore(bool canMoveAfterLanding, float time)
-	{
-		//wait for the trayectory to end to restore control to the immigrant
-		yield return new WaitForSeconds (time);
+    public void ReleasedByPlayer(bool releasedOnCountry)
+    {
+        coll.enabled = true;
+        playerHold = null;
+        grabbedByPlayer = false;
+        followingPath = false;
 
-		transform.LookAt(Vector3.zero); //look at map center after landing
-		rb.velocity = Vector3.zero;
-		nav.enabled = true;
-		freeToMove = canMoveAfterLanding;
-	}
+        if (releasedOnCountry)
+            onCountry = true;
+
+    }
 }

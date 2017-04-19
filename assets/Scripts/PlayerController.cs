@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour {
 
@@ -11,10 +12,11 @@ public class PlayerController : MonoBehaviour {
     const string horizontalInputAxis = "Horizontal_P"; //name of the general horizontal input 
     const string verticalInputAxis = "Vertical_P"; //name of the general vertical input axis 
     const string actionInputAxis = "Action_P"; //name of the general action input axis 
-
-    [HideInInspector]
+    
+    [Range(1,4)]
     public int playerID; //the number of the player (from 1 to 4)
 	public Transform immigrantHoldPosition; //the position where the player will hold the immigrant when grabbed
+    Text scoreText;
 
 	Vector3 moveDir;
 	Rigidbody rb;
@@ -23,32 +25,41 @@ public class PlayerController : MonoBehaviour {
 	float immigrantReleaseCooldown = 1f;
     float timeSinceAction;
 
+    public int score { get; private set; }
+
 	void Start()
 	{
-        playerID = 1; //remove
 		rb = GetComponent<Rigidbody> ();
-		carryingImmigrant = false;
+        GameObject scoreTextObj = GameObject.Find("Player "+playerID+" Score");
+        if (scoreTextObj != null)
+        {
+            scoreText = scoreTextObj.GetComponent<Text>();
+        }
 	}
 
 	void Update()
 	{
-		if (Input.GetButtonDown (actionInputAxis + playerID.ToString()) && timeSinceAction >= immigrantReleaseCooldown)
-		{
-			if (carryingImmigrant)
-			{
-				immigrantCarried.ReleasedByPlayer (false);
-				timeSinceAction = 0;
-				immigrantCarried = null;
-				carryingImmigrant = false;
-			}
-		}
-		timeSinceAction += Time.deltaTime;
-		timeSinceAction = Mathf.Clamp(timeSinceAction, 0, immigrantReleaseCooldown);
+        if (Input.GetButtonDown(actionInputAxis + playerID.ToString()) && timeSinceAction >= immigrantReleaseCooldown)
+        {
+            if (carryingImmigrant)
+            {
+                immigrantCarried.ReleasedByPlayer(false);
+                timeSinceAction = 0;
+                immigrantCarried = null;
+                carryingImmigrant = false;
+            }
+        }
+
+        scoreText.text = score.ToString();
+
+        timeSinceAction += Time.deltaTime;
+        timeSinceAction = Mathf.Clamp(timeSinceAction, 0, immigrantReleaseCooldown);
 
         //ensure the player can't be rotated by forces applied by immigrants
-        rb.velocity = Vector3.zero; 
-		rb.angularVelocity = Vector3.zero; 
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
         //note player needs to be kinematic
+    
 	}
 
 	void OnCollisionStay (Collision collisionInfo)
@@ -57,7 +68,6 @@ public class PlayerController : MonoBehaviour {
 		{
 			if (Input.GetButtonDown (actionInputAxis + playerID.ToString()) && !carryingImmigrant && timeSinceAction >= immigrantReleaseCooldown) 
 			{ //unless we are already carrying one or have recently released one
-				Debug.Log ("Picked up immigrant!");
 				carryingImmigrant = true;
 				immigrantCarried = collisionInfo.gameObject.GetComponent <Immigrant> ();
 				immigrantCarried.PickedByPlayer (immigrantHoldPosition);
@@ -73,9 +83,10 @@ public class PlayerController : MonoBehaviour {
             if (Input.GetButtonDown(actionInputAxis + playerID.ToString()) && carryingImmigrant) //Player wants to drop the current immigrant
             {
                 Country country = other.GetComponentInParent<Country>();
-                Debug.Log("On trigger, releasing immigrant...");
                 if (country.tag == immigrantCarried.country) //the immigrant belongs to that country
                 {
+                    Debug.Log(score);
+                    score++;
                     country.TakeImmigrant(immigrantCarried);//make country add immigrant to its queue
                     immigrantCarried.ReleasedByPlayer(true);
                 }
@@ -91,15 +102,15 @@ public class PlayerController : MonoBehaviour {
 
     void FixedUpdate () 
 	{
-		moveDir = new Vector3 (Input.GetAxisRaw (horizontalInputAxis + playerID.ToString()), 0, Input.GetAxisRaw (verticalInputAxis + playerID.ToString()));
-		if (moveDir.sqrMagnitude > 1f)
-			moveDir = moveDir.normalized;
+        moveDir = new Vector3(Input.GetAxisRaw(horizontalInputAxis + playerID.ToString()), 0, Input.GetAxisRaw(verticalInputAxis + playerID.ToString()));
+        if (moveDir.sqrMagnitude > 1f)
+            moveDir = moveDir.normalized;
 
-		float targetSpeed = carryingImmigrant ? movementSpeed - speedReduction : movementSpeed;
-		Vector3 velocity = moveDir * targetSpeed * Time.fixedDeltaTime;
-		rb.MovePosition (transform.position  + velocity);
+        float targetSpeed = carryingImmigrant ? movementSpeed - speedReduction : movementSpeed;
+        Vector3 velocity = moveDir * targetSpeed * Time.fixedDeltaTime;
+        rb.MovePosition(transform.position + velocity);
 
-		if (moveDir != Vector3.zero)
-			transform.forward = Vector3.Normalize(moveDir);
+        if (moveDir != Vector3.zero)
+            transform.forward = Vector3.Normalize(moveDir);
 	}
 }
