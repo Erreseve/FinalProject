@@ -18,14 +18,22 @@ public class Country : MonoBehaviour {
 	public Queue<Immigrant> immigrantQ; //holds all the immigrants the country will have inside it
 	float timeSinceLastLaunch;
 	bool adquiredAllImmigrants = false; //a country only throws immigrants once they have all been recolected
-	int immigrantsAdquired; 
+	int immigrantsAdquired;
+    Collider storeZoneCollider;
+    Vector3 leftTopMostPoint;
 
-	void Awake()
+    const float separation = .6f; //how far apart are we spawning the immigrants 
+
+    void Awake()
 	{
-		immigrantQ = new Queue<Immigrant> ();
+        storeZoneCollider = immigrantStoreZone.gameObject.GetComponent<Collider>();
+        //store the lefttopmost zone of the collider (notice the walkable zone of the navmesh is slightly smaller)
+        leftTopMostPoint = immigrantStoreZone.position - Vector3.right * storeZoneCollider.bounds.extents.x + Vector3.forward * storeZoneCollider.bounds.extents.z;
+
+        immigrantQ = new Queue<Immigrant> ();
 		immigrantsAdquired = 0;
 		InitializeImmigrants ();
-	}
+    }
 
 	void Update()
 	{
@@ -45,7 +53,6 @@ public class Country : MonoBehaviour {
 	//Triggered by player, when colliding with retrievalZone's collider and presing the appropiate button
 	public void TakeImmigrant(Immigrant immigrant)
 	{
-        Debug.Log(name + "taking immigrant...");
 		immigrantsAdquired++;
 		if (immigrantsAdquired == maxImmigrants)
 			adquiredAllImmigrants = true;
@@ -65,26 +72,65 @@ public class Country : MonoBehaviour {
 
     public Vector3 RequestRandomCountryPosition()
     {
-        return Vector3.zero;
+        float offsetZ = Random.Range(0, storeZoneCollider.bounds.size.z - separation * 2);
+        float offsetX = Random.Range(0, storeZoneCollider.bounds.size.x - separation * 2);
+
+        Vector3 returnWorldPoint = leftTopMostPoint + Vector3.right * offsetX + Vector3.back * offsetZ;
+
+        return returnWorldPoint;
     }
 
 	void InitializeImmigrants()
 	{
-		immigrantQ.Clear ();
-		for (int i = 0; i < maxImmigrants; i++)
+        Collider instanceColl = immigratePrefab.GetComponent<Collider>();
+
+        float compensationY = instanceColl.bounds.extents.y; //compensate for the height of the mesh
+        float compensationX = separation;
+        float compensationZ = 0; //place them below each other in the store zone
+
+        int immigrantsPerColumn = Mathf.FloorToInt((storeZoneCollider.bounds.size.z - 2 * separation) / separation);
+        int immigrantsPlacedInCurrentColumn = 0;
+
+        immigrantQ.Clear ();
+		for (int i = 1; i <= maxImmigrants; i++)
 		{
 			GameObject instance = Instantiate (immigratePrefab, Vector3.zero, Quaternion.identity);
 
-            float compensationY = instance.GetComponent<Collider> ().bounds.extents.y ; //compensate for the height of the mesh
-			float compensationZ = instance.GetComponent<Collider> ().bounds.size.z * 1.5f; //place them next to each other
+            immigrantsPlacedInCurrentColumn++; 
 
-			Vector3 offset = Vector3.up*compensationY + Vector3.forward * compensationZ * i;
-			instance.transform.position = immigrantStoreZone.position + offset;
+            //align immigrants in the top of a new row if they no longer fit in the column
+            if ( immigrantsPlacedInCurrentColumn / immigrantsPerColumn > 0 )
+            {
+                compensationX += separation;
+                compensationZ = - separation;
+                immigrantsPlacedInCurrentColumn = 0;
+            }
+            else
+                compensationZ -= separation;
+
+            Vector3 offset = new Vector3(compensationX, compensationY, compensationZ);
+			instance.transform.position = leftTopMostPoint + offset;
 			instance.transform.LookAt(Vector3.zero); //immigrants spawn looking at the map center
-			instance.GetComponent<Collider>().enabled = false; //disable colliders so they don't push each other at spawn
 
 			immigrantQ.Enqueue (instance.GetComponent<Immigrant>());
 		}
 		adquiredAllImmigrants = false;
+
+        Invoke("AllowImmigrantsToStartMoving", 1f);
 	}
+
+    //immigrants are all set in formation and enough time has passed to see it, they can start moving
+    void AllowImmigrantsToStartMoving()
+    {
+        foreach (Immigrant i in immigrantQ)
+        {
+            i.justSpawned = false;
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.white;
+        Gizmos.DrawCube(leftTopMostPoint, Vector3.one * .3f);
+    }
 }

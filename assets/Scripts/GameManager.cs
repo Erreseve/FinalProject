@@ -29,7 +29,9 @@ public class GameManager : MonoBehaviour {
 	IEnumerator SpawnInitialImmigrants()
 	{
 		float timeBetweenWaves = 1f;
-		int[] immigrantsInWave = new int[] {1, 2 ,3 };
+		int[] immigrantsInWave = new int[] {1, 2, 2};
+
+        yield return new WaitForSeconds(1f);
 
 		for (int wave = 0; wave < immigrantsInWave.Length; wave++) //repeat for all waves
 		{

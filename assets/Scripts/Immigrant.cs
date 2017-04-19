@@ -17,6 +17,8 @@ public class Immigrant : MonoBehaviour {
 	bool followingPath;
 	bool grabbedByPlayer;
     bool onCountry;
+    [HideInInspector]
+    public bool justSpawned;
 
 	void Awake () 
 	{
@@ -25,48 +27,53 @@ public class Immigrant : MonoBehaviour {
 		coll = GetComponent<Collider> ();
 
         GameObject tempObjRef = GameObject.FindWithTag(country);
-        if (tempObjRef != null) //if the country exists (which it always should)
+        if (tempObjRef != null) //if the country exists (which always should)
             countryBelongedTo = tempObjRef.GetComponent<Country>();
 
-        rb.useGravity = true; //gravity should always be on for the immigrant
-        nav.autoTraverseOffMeshLink = true; //so the immigrant can jump from and to the country
+        onCountry = true; //immigrants are spawned in country
+        justSpawned = true; 
     }
 
-	void Update()
-	{
-		if (!grabbedByPlayer) //simulate immigrant's wandering
-		{
-			if (!followingPath) //if we don't a destination, get one
-			{
-                if (onCountry) //request only paths within country navmesh
-                    SetDestinationOnCountry();
-                else //request only paths within field navmesh
-                    SetDestinationOnField();    
-			}
-			else
-			{
-				if (Vector3.Distance (nav.destination, transform.position) < 1f) //pick another waypoint if too close to the current one
-				{
-					followingPath = false;
-				}
-			}
-		}
-		else
-		{
-			if (nav.enabled) //we are not to be looking for a path when grabbed by player
-				nav.ResetPath();
-		}
+    void Update()
+    {
+        if (!justSpawned) //if just spawned, don't move yet
+        { 
+            if (!grabbedByPlayer) //simulate immigrant's wandering
+            {
+                if (!followingPath) //if we don't a destination, get one
+                {
+                    if (onCountry) //request only paths within country navmesh
+                        SetDestinationOnCountry();
+                    else //request only paths within field navmesh
+                        SetDestinationOnField();
+                }
+                else
+                {
+                    if (Vector3.Distance(nav.destination, transform.position) < .5f) //pick another waypoint if too close to the current one
+                    {
+                        followingPath = false;
+                    }
+                }
+            }
+            else
+            {
+                nav.ResetPath();
+            }
+        }
 	}
 
 	void LateUpdate()
 	{
-		if (grabbedByPlayer) //keep immigrant at where the player is holding him
-		{
-			transform.position = playerHold.position;
-		}
-        else if (!onCountry) //if immigrant isn't grabbed by player but is in scenario, make sure he is always ground leveled
+        if (!justSpawned)
         {
-            transform.position = new Vector3(transform.position.x, 0 + coll.bounds.extents.y, transform.position.z);
+            if (grabbedByPlayer) //keep immigrant at where the player is holding him
+            {
+                transform.position = playerHold.position;
+            }
+            else if (!onCountry) //if immigrant isn't grabbed by player but is in scenario, make sure he is always ground leveled
+            {
+                transform.position = new Vector3(transform.position.x, 0 + coll.bounds.extents.y, transform.position.z);
+            }
         }
 	}
 

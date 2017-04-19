@@ -57,7 +57,6 @@ public class PlayerController : MonoBehaviour {
 		{
 			if (Input.GetButtonDown (actionInputAxis + playerID.ToString()) && !carryingImmigrant && timeSinceAction >= immigrantReleaseCooldown) 
 			{ //unless we are already carrying one or have recently released one
-				Debug.Log ("Picked up immigrant!");
 				carryingImmigrant = true;
 				immigrantCarried = collisionInfo.gameObject.GetComponent <Immigrant> ();
 				immigrantCarried.PickedByPlayer (immigrantHoldPosition);
@@ -73,7 +72,6 @@ public class PlayerController : MonoBehaviour {
             if (Input.GetButtonDown(actionInputAxis + playerID.ToString()) && carryingImmigrant) //Player wants to drop the current immigrant
             {
                 Country country = other.GetComponentInParent<Country>();
-                Debug.Log("On trigger, releasing immigrant...");
                 if (country.tag == immigrantCarried.country) //the immigrant belongs to that country
                 {
                     country.TakeImmigrant(immigrantCarried);//make country add immigrant to its queue
