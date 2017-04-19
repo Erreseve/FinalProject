@@ -7,6 +7,7 @@ using UnityEngine.AI;
 public class Immigrant : MonoBehaviour {
 
     public string country = "";
+    public int scoreValue = 1; 
     Country countryBelongedTo;
 
 	Rigidbody rb;

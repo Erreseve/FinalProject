@@ -87,7 +87,9 @@
     <Compile Include="assets\Scripts\Immigrant.cs" />
     <Compile Include="assets\Scripts\MapGrid.cs" />
     <Compile Include="assets\Scripts\MusicManager.cs" />
+    <Compile Include="assets\Scripts\ONUAmbassador.cs" />
     <Compile Include="assets\Scripts\PlayerController.cs" />
+    <Compile Include="assets\Scripts\PlayerSelection.cs" />
     <Compile Include="assets\Scripts\SoundLibrary.cs" />
     <Compile Include="assets\Scripts\UIButtonManager.cs" />
     <Compile Include="assets\Scripts\Util.cs" />
