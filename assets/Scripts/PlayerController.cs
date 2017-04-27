@@ -16,7 +16,6 @@ public class PlayerController : MonoBehaviour {
     [Range(1,4)]
     public int playerID; //the number of the player (from 1 to 4)
 	public Transform immigrantHoldPosition; //the position where the player will hold the immigrant when grabbed
-    Text scoreText;
 
 	Vector3 moveDir;
 	Rigidbody rb;
@@ -30,11 +29,6 @@ public class PlayerController : MonoBehaviour {
 	void Start()
 	{
 		rb = GetComponent<Rigidbody> ();
-        GameObject scoreTextObj = GameObject.Find("Player "+playerID+" Score");
-        if (scoreTextObj != null)
-        {
-            scoreText = scoreTextObj.GetComponent<Text>();
-        }
 	}
 
 	void Update()
@@ -49,8 +43,6 @@ public class PlayerController : MonoBehaviour {
                 carryingImmigrant = false;
             }
         }
-
-        scoreText.text = score.ToString();
 
         timeSinceAction += Time.deltaTime;
         timeSinceAction = Mathf.Clamp(timeSinceAction, 0, immigrantReleaseCooldown);
@@ -74,6 +66,14 @@ public class PlayerController : MonoBehaviour {
                 timeSinceAction = 0;
 			}
 		}
+        else if (collisionInfo.gameObject.tag == "ONUAmbassador")
+        {
+            if (Input.GetButtonDown(actionInputAxis + playerID.ToString()) && !carryingImmigrant && timeSinceAction >= immigrantReleaseCooldown)
+            {
+                score += 5;
+                collisionInfo.collider.gameObject.GetComponent<ONUAmbassador>().GrabbedByPlayer(); //add score and destroy ambassador
+            }
+        }
 	}
 
     void OnTriggerStay(Collider other)
@@ -85,7 +85,6 @@ public class PlayerController : MonoBehaviour {
                 Country country = other.GetComponentInParent<Country>();
                 if (country.tag == immigrantCarried.country) //the immigrant belongs to that country
                 {
-                    Debug.Log(score);
                     score++;
                     country.TakeImmigrant(immigrantCarried);//make country add immigrant to its queue
                     immigrantCarried.ReleasedByPlayer(true);

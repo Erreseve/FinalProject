@@ -130,7 +130,13 @@ public class Country : MonoBehaviour {
 
     private void OnDrawGizmos()
     {
+        //leftmost point inside the country 
         Gizmos.color = Color.white;
-        Gizmos.DrawCube(leftTopMostPoint, Vector3.one * .3f);
+        Gizmos.DrawWireCube(leftTopMostPoint, Vector3.one * .3f);
+
+        //retrieval zone
+        Gizmos.color = Color.green;
+        Collider temp = retrievalZone.GetComponent<Collider>();
+        Gizmos.DrawWireCube(retrievalZone.position, new Vector3(temp.bounds.size.x, temp.bounds.size.y, temp.bounds.size.z));
     }
 }

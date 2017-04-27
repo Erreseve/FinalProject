@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System;
 using System.Collections;
 
 public class ONUAmbassador : MonoBehaviour 
@@ -11,7 +10,7 @@ public class ONUAmbassador : MonoBehaviour
     PlayerController closestPlayer;
     Rigidbody rb;
     Collider coll;
-    bool grabbed;
+    bool onGround;
 
     private void Start()
     {
@@ -19,43 +18,76 @@ public class ONUAmbassador : MonoBehaviour
         coll = GetComponent<Collider>();
 
         Physics.gravity = Vector3.down * 50f;
-        transform.position = Vector3.zero + Vector3.up * 10f;
+        transform.position = GameManager.instance.RequestRandomWorldPos() + Vector3.up * 10f;
     }
 
     private void Update()
     {
-        if (!grabbed)
+        if (onGround)
         {
+            //run from the nearest player
+            bool playerNearby = false;
             Collider[] collisions = Physics.OverlapSphere(transform.position, playerDetectionRadius);
             foreach (Collider c in collisions)
             {
                 if (c.gameObject.tag == "Player")
                 {
                     closestPlayer = c.gameObject.GetComponent<PlayerController>();
+                    playerNearby = true;
                     break;
                 }
             }
+
+            if (!playerNearby)
+                closestPlayer = null;
+
             if (closestPlayer != null)
-            {
+            { //look away from the closes player if any
                 transform.LookAt( new Vector3 (closestPlayer.transform.position.x, coll.bounds.extents.y, closestPlayer.transform.position.z));
                 transform.Rotate(Vector3.up, 180f);
+            }
+
+            //avoid collisions
+            RaycastHit hit;
+            Debug.DrawRay(transform.position + transform.forward * coll.bounds.extents.z, transform.forward, Color.red);
+            if (Physics.Raycast(transform.position + transform.forward* coll.bounds.extents.z, transform.forward, out hit, coll.bounds.extents.z + .1f))
+            {
+                if (hit.collider.gameObject.tag != "Untagged") //collision with and object
+                {
+                    float angleNudge = Random.Range(30, 90);
+                    angleNudge = (int)Random.Range(0, 2) == 1 ? -angleNudge : angleNudge; //randomly choose right or left rotation
+                    transform.Rotate(Vector3.up, angleNudge);
+                }
             }
         }
     }
 
-    private void LateUpdate()
+    public void GrabbedByPlayer()
     {
-        if (!grabbed && closestPlayer != null)
+        Destroy(gameObject);
+    }
+
+    public void OnCollisionEnter(Collision collision)
+    {
+        if (collision.collider.gameObject.tag == "Ground")
         {
-            transform.Translate( transform.forward * speed * Time.deltaTime);
+            onGround = true;
         }
     }
 
-    private void OnDrawGizmos()
+    private void FixedUpdate()
+    {
+        if (onGround)
+        {
+            rb.MovePosition(rb.position + transform.forward * speed * Time.fixedDeltaTime);
+        }
+    }
+
+    /*private void OnDrawGizmos()
     {
         Gizmos.color = Color.white;
         Gizmos.DrawSphere(transform.position, playerDetectionRadius);
-    }
+    }*/
 
 
 }

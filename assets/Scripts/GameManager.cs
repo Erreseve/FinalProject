@@ -15,14 +15,18 @@ public class GameManager : MonoBehaviour {
 
     public Text timeText;
     public GameObject[] playerPrefabs;
+    public Text[] playerScores;
+    
     public GameObject ONUAmbassadorPrefab;
 
 	public static GameManager instance = null;
 
     float timeToSpawnONUAmbassador;
     bool ONUAmbassadorSpawned;
+    PlayerSelection selectionManager;
+    PlayerController[] players;
 
-	void Awake()
+    void Awake()
 	{
 		mapGrid = GetComponent<MapGrid> ();
 		//GameManager Simpleton
@@ -31,25 +35,29 @@ public class GameManager : MonoBehaviour {
 		else
 			Destroy (gameObject);
 
-        PlayerSelection selectionManager = GameObject.Find("Player Selection Manager").GetComponent<PlayerSelection>();
-        
+        selectionManager = GameObject.Find("Player Selection Manager").GetComponent<PlayerSelection>();
+        players = new PlayerController[4];
+
         for (int i = 0; i<4; i++)
         {
-            if(selectionManager.playersJoinedGame[i])
+            if (selectionManager.playersJoinedGame[i])
             {
                 PlayerController newPlayer = Instantiate(playerPrefabs[i]).GetComponent<PlayerController>();
                 newPlayer.gameObject.SetActive(true);
                 newPlayer.enabled = true;
-     
+
                 Collider newPlayerCollider = newPlayer.GetComponent<Collider>();
 
                 newPlayer.transform.localScale = Vector3.one;
 
-                Vector3 spawnPosition = new Vector3(-4f + 2*i, newPlayerCollider.bounds.extents.y, 0);
+                Vector3 spawnPosition = new Vector3(-4f + 2 * i, newPlayerCollider.bounds.extents.y, 0);
                 newPlayer.transform.position = spawnPosition;
                 newPlayer.transform.LookAt(newPlayer.transform.position + Vector3.back * 1f);
-                
+
+                players[i] = newPlayer;
             }
+            else
+                players[i] = null;
         }
 	}
 
@@ -61,6 +69,7 @@ public class GameManager : MonoBehaviour {
 
     void Update()
     {
+        //MATCH TIME
         matchTime -= Time.deltaTime;
 
         int minutes = Mathf.RoundToInt(Mathf.Floor(matchTime / 60));
@@ -70,6 +79,19 @@ public class GameManager : MonoBehaviour {
             MatchEnded();
 
         timeText.text = minutes.ToString() + ":"+ seconds.ToString();   
+
+        //SCORES
+        for (int i =0; i< 4; i++)
+        {
+            if (selectionManager.playersJoinedGame[i])
+            {
+                playerScores[i].text = players[i].score.ToString();
+            }
+            else
+            {
+                playerScores[i].text = "";
+            }
+        }
     }
 
     private void LateUpdate()
