@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour {
     bool ONUAmbassadorSpawned;
     PlayerSelection selectionManager;
     PlayerController[] players;
+    bool matchEnded;
 
     void Awake()
 	{
@@ -69,27 +70,30 @@ public class GameManager : MonoBehaviour {
 
     void Update()
     {
-        //MATCH TIME
-        matchTime -= Time.deltaTime;
-
-        int minutes = Mathf.RoundToInt(Mathf.Floor(matchTime / 60));
-        float seconds = Mathf.RoundToInt(matchTime % 60);
-
-        if (matchTime <= 0.0)
-            MatchEnded();
-
-        timeText.text = minutes.ToString() + ":"+ seconds.ToString();   
-
-        //SCORES
-        for (int i =0; i< 4; i++)
+        if (!matchEnded)
         {
-            if (selectionManager.playersJoinedGame[i])
+            //MATCH TIME
+            matchTime -= Time.deltaTime;
+
+            int minutes = Mathf.RoundToInt(Mathf.Floor(matchTime / 60));
+            float seconds = Mathf.RoundToInt(matchTime % 60);
+
+            if (matchTime <= 0.0)
+                MatchEnded();
+
+            timeText.text = minutes.ToString() + ":" + seconds.ToString();
+
+            //SCORES
+            for (int i = 0; i < 4; i++)
             {
-                playerScores[i].text = players[i].score.ToString();
-            }
-            else
-            {
-                playerScores[i].text = "";
+                if (selectionManager.playersJoinedGame[i])
+                {
+                    playerScores[i].text = players[i].score.ToString();
+                }
+                else
+                {
+                    playerScores[i].text = "";
+                }
             }
         }
     }
@@ -105,6 +109,7 @@ public class GameManager : MonoBehaviour {
 
     void MatchEnded()
     {
+        timeText.text = "00:00";
         Application.Quit();
     }
 

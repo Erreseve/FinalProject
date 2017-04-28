@@ -33,13 +33,21 @@ public class PlayerSelection : MonoBehaviour
                 {
                     if (Input.GetButtonDown(actionInputAxis + (i + 1).ToString()))
                     {
-                        DontDestroyOnLoad(players[i].gameObject);
+                        Debug.Log(Input.GetButtonDown(actionInputAxis + (i + 1).ToString()));
                         players[i].gameObject.SetActive(true);
                         playersJoinedGame[i] = true; //player has joined game
                     }
                 }
             }
+            else if (!playerSelScreen.activeSelf && onMenu)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    playersJoinedGame[i] = false; //quitting the selection screen resets player selection
+                    players[i].gameObject.SetActive(false);
+                }
                 
+            } 
         }
     }
 
