@@ -81,6 +81,11 @@ public class Immigrant : MonoBehaviour {
 
     public void SetDestinationOnCountry()
     {
+        if (!onCountry) //if immigrant goes from field to country
+        {
+            AudioManager.instance.PlaySound("ImmigrantJump", transform.position);
+            //PLAY GOODBYE IN THEIR LANGUAGE
+        }
         followingPath = true; 
         onCountry = true;
         nav.SetDestination(countryBelongedTo.RequestRandomCountryPosition());
@@ -88,6 +93,11 @@ public class Immigrant : MonoBehaviour {
 
     public void SetDestinationOnField()
     {
+        if (onCountry) //if immigrant goes from country to field
+        {
+            AudioManager.instance.PlaySound("ImmigrantJump", transform.position);
+            //PLAY SALUTE IN THEIR LANGUAGE
+        }
         followingPath = true;
         onCountry = false;
         nav.SetDestination(GameManager.instance.RequestRandomWorldPos());

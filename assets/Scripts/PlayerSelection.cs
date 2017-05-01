@@ -33,7 +33,6 @@ public class PlayerSelection : MonoBehaviour
                 {
                     if (Input.GetButtonDown(actionInputAxis + (i + 1).ToString()))
                     {
-                        Debug.Log(Input.GetButtonDown(actionInputAxis + (i + 1).ToString()));
                         players[i].gameObject.SetActive(true);
                         playersJoinedGame[i] = true; //player has joined game
                     }

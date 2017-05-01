@@ -67,7 +67,7 @@ public class AudioManager : MonoBehaviour
                 sfxVolumePercent = volumePercent;
                 break;
         }
-        //update sources' volume
+        //update music sources' volume
         musicSources[0].volume = musicVolumePercent * masterVolumePercent;
         musicSources[1].volume = musicVolumePercent * masterVolumePercent;
 
@@ -78,7 +78,7 @@ public class AudioManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    public void PlayMusic(AudioClip clip, float fadeDuration = 1)
+    public void PlayMusic(AudioClip clip, float fadeDuration = .7f)
     {
         activeMusicSourceIndex = 1 - activeMusicSourceIndex; //alternate between music sources
         musicSources[activeMusicSourceIndex].clip = clip;

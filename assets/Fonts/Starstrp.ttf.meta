@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 0ae6d7af50bc3304099fbcf7cab6743c
+timeCreated: 1493603020
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Stars & Stripes
+  fontNames:
+  - Stars & Stripes
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

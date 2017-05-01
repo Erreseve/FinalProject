@@ -41,6 +41,7 @@ public class UIButtonManager : MonoBehaviour
 
     public void ToggleOffAllMenusBut (int i)
     {
+        OnButtonClicked();
         foreach (GameObject menu in MenuLayouts)
         {
             menu.SetActive(false);
@@ -105,12 +106,23 @@ public class UIButtonManager : MonoBehaviour
     }
     public void QuitGame()
     {
+        OnButtonClicked();
         Application.Quit();
     }
 
     public void Initiate()
     {
+        OnButtonClicked();
         buttonHolderAnimator.SetTrigger("TriggerButtonAnimations");
     }
 
+    public void OnButtonClicked()
+    {
+        AudioManager.instance.PlaySound("ButtonClick");
+    }
+
+    public void OnButtonHover()
+    {
+        AudioManager.instance.PlaySound("ButtonHover");
+    }
 }

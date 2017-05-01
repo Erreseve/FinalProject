@@ -102,6 +102,7 @@ public class PlayerController : MonoBehaviour {
     void FixedUpdate () 
 	{
         moveDir = new Vector3(Input.GetAxisRaw(horizontalInputAxis + playerID.ToString()), 0, Input.GetAxisRaw(verticalInputAxis + playerID.ToString()));
+
         if (moveDir.sqrMagnitude > 1f)
             moveDir = moveDir.normalized;
 
