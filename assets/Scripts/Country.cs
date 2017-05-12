@@ -83,6 +83,8 @@ public class Country : MonoBehaviour {
 	void InitializeImmigrants()
 	{
         Collider instanceColl = immigratePrefab.GetComponent<Collider>();
+        if (instanceColl == null)
+            instanceColl = immigratePrefab.GetComponentInChildren<Collider>();
 
         float compensationY = instanceColl.bounds.extents.y; //compensate for the height of the mesh
         float compensationX = separation;

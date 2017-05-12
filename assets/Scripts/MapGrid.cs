@@ -73,23 +73,27 @@ public class MapGrid : MonoBehaviour {
 			node = spawnNodeSelectorQ.Dequeue (); //pick random node
 			Collider[] collisions = Physics.OverlapBox (node.worldPos, new Vector3 (nodeRadius, nodeRadius, nodeRadius));
 
-			if (collisions.Length <= 0) //no player or immigrants in this node
-				break;
-			else
-			{
-				bool flag = false;
-				foreach (Collider c in collisions)
-				{
-					string cTag = c.gameObject.tag;
-					if (cTag == "Player" || cTag == "Immigrant")
-						flag = true; //immigrant or player is in this area
-				}
-				if (!flag) //node is good, break while and return it
-					break;
-			}
+            if (collisions.Length <= 0) //no player or immigrants in this node
+            {
+                spawnNodeSelectorQ.Enqueue(node);
+                break;
+            }
+            else
+            {
+                bool flag = false;
+                foreach (Collider c in collisions)
+                {
+                    string cTag = c.gameObject.tag;
+                    if (cTag == "Player" || cTag == "Immigrant")
+                        flag = true; //immigrant or player is in this area
+                }
+                if (!flag) //node is good, break while and return it
+                    break;
+            }
 			spawnNodeSelectorQ.Enqueue (node); //return node to random queue
 		}
-		return node.worldPos;
+        spawnNodeSelectorQ.Enqueue(node);
+        return node.worldPos;
 	}
 
 	void OnDrawGizmos()

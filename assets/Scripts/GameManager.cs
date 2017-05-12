@@ -20,18 +20,23 @@ public class GameManager : MonoBehaviour {
     public Image fadePlane;
     public Text[] playerScoresUI;
     public Button goBackToMenuButton;
+    public GameObject gameplayGUIHolder;
+    public GameObject pauseScreenHolder;
 
     [Header("Object References")]
     public GameObject ONUAmbassadorPrefab;
     public Country[] countries;
     public GameObject[] playerPrefabs;
-    
+    public AudioClip gameOverTheme;
 
-	public static GameManager instance = null;
+
+    public static GameManager instance = null;
 
     float timeToSpawnONUAmbassador;
     bool ONUAmbassadorSpawned;
     bool matchEnded;
+    bool gamePaused;
+    float timeScaleBeforePause;
     PlayerSelection selectionManager;
     PlayerController[] players; //contains the controllers to all active players or null if not
 
@@ -57,10 +62,12 @@ public class GameManager : MonoBehaviour {
                 newPlayer.enabled = true;
 
                 Collider newPlayerCollider = newPlayer.GetComponent<Collider>();
+                if (newPlayerCollider == null)
+                    newPlayerCollider = newPlayer.GetComponentInChildren<Collider>();
 
                 newPlayer.transform.localScale = Vector3.one;
 
-                Vector3 spawnPosition = new Vector3(-4f + 2 * i, newPlayerCollider.bounds.extents.y, 0);
+                Vector3 spawnPosition = new Vector3(-4f + 2 * i, newPlayerCollider.bounds.extents.y + 1.5f, 0);
                 newPlayer.transform.position = spawnPosition;
                 newPlayer.transform.LookAt(newPlayer.transform.position + Vector3.back * 1f);
 
@@ -83,7 +90,7 @@ public class GameManager : MonoBehaviour {
 
     void Update()
     {
-        if (!matchEnded)
+        if (!matchEnded && !gamePaused)
         {
             //MATCH TIME
             matchTime -= Time.deltaTime;
@@ -108,6 +115,17 @@ public class GameManager : MonoBehaviour {
                     playerScoresUI[i].text = "";
                 }
             }
+
+            //Pause
+            if (Input.GetKeyDown(KeyCode.Escape) && !gamePaused)
+            {
+                timeScaleBeforePause = Time.timeScale;
+                Time.timeScale = 0;
+                gameplayGUIHolder.SetActive(false);
+                pauseScreenHolder.SetActive(true);
+                gamePaused = true;
+                Cursor.visible = true;
+            }
         }
         else
             timeText.text = "00:00";
@@ -131,9 +149,10 @@ public class GameManager : MonoBehaviour {
         float prevTimeScale = Time.timeScale;
         Time.timeScale = 0;
         winnerAnnouncementText.text = "GAME OVER";
-        //PLAY GAME OVER ANNOUNCER AUDIO CLIP
 
-        //PLAY GAME OVER MUSIC
+        AudioManager.instance.PlaySound("MatchEnd");
+
+        AudioManager.instance.PlayMusic(gameOverTheme, .4f);
 
         //fade to black screen
         float speed = 1 / time;
@@ -179,7 +198,7 @@ public class GameManager : MonoBehaviour {
 
                 Collider newPlayerCollider = players[i].gameObject.GetComponent<Collider>();
 
-                Vector3 newPosition = new Vector3(-4f + 2 * i, newPlayerCollider.bounds.extents.y, 0);
+                Vector3 newPosition = new Vector3(-4f + 2 * i, newPlayerCollider.bounds.extents.y +1.5f, 0);
                 players[i].transform.position = newPosition;
                 players[i].transform.LookAt(players[i].transform.position + Vector3.back * 1f);
             }
@@ -202,15 +221,27 @@ public class GameManager : MonoBehaviour {
 
         yield return new WaitForSeconds(1f);   
 
-        //ZOOM CAMERA ANIMATION
-        //ACTIVATE WINNER CELEBRATION ANIMATION
-
         goBackToMenuButton.gameObject.SetActive(true);
     }
 
     public void GoBackToMenu()
     {
+        OnButtonClicked();
+
+        AudioManager.instance.GetComponent<MusicManager>().ChangeMenuMusic();
+
         SceneManager.LoadScene("Menu");
+    }
+
+    public void ResumeGame()
+    {
+        OnButtonClicked();
+        Cursor.visible = false;
+
+        Time.timeScale = timeScaleBeforePause;
+        gameplayGUIHolder.SetActive(true);
+        pauseScreenHolder.SetActive(false);
+        gamePaused = false;
     }
 
     int GetMatchWinnerIndex()
@@ -260,6 +291,16 @@ public class GameManager : MonoBehaviour {
 	{
 		return mapGrid.PickRandomGridPos ();
 	}
+
+    public void OnButtonClicked()
+    {
+        AudioManager.instance.PlaySound("ButtonClick");
+    }
+
+    public void OnButtonHover()
+    {
+        AudioManager.instance.PlaySound("ButtonHover");
+    }
 
     private void OnValidate()
     {

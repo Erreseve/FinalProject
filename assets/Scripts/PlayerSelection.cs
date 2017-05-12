@@ -7,7 +7,6 @@ public class PlayerSelection : MonoBehaviour
 {
     public GameObject playerSelScreen;
     public PlayerController[] players;
-    public Material[] playerMats;
 
     const string horizontalInputAxis = "Horizontal_P"; //name of the general horizontal input 
     const string verticalInputAxis = "Vertical_P"; //name of the general vertical input axis 

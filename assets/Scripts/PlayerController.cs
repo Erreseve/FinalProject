@@ -71,7 +71,7 @@ public class PlayerController : MonoBehaviour {
             if (Input.GetButtonDown(actionInputAxis + playerID.ToString()) && !carryingImmigrant && timeSinceAction >= immigrantReleaseCooldown)
             {
                 score += 5;
-                collisionInfo.collider.gameObject.GetComponent<ONUAmbassador>().GrabbedByPlayer(); //add score and destroy ambassador
+                collisionInfo.collider.gameObject.GetComponentInParent<ONUAmbassador>().GrabbedByPlayer(); //add score and destroy ambassador
             }
         }
 	}

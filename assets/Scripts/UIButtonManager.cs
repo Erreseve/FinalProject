@@ -10,6 +10,8 @@ public class UIButtonManager : MonoBehaviour
     public Transform buttonHolder;
     public Animator buttonHolderAnimator;
 
+    public GameObject playerSelectionBackground;
+    public GameObject menuBackground;
     public GameObject[] MenuLayouts;
     public Slider[] volumeSliders;
     public Toggle[] resolutionToggles;
@@ -41,7 +43,19 @@ public class UIButtonManager : MonoBehaviour
 
     public void ToggleOffAllMenusBut (int i)
     {
-        OnButtonClicked();
+        if (i == 1) //To player selection screen, activate new background
+        {
+            playerSelectionBackground.SetActive(true);
+            menuBackground.SetActive(false);
+        }
+        else
+        {
+            playerSelectionBackground.SetActive(false);
+            menuBackground.SetActive(true);
+        }
+
+
+        OnButtonClicked(); //for sound
         foreach (GameObject menu in MenuLayouts)
         {
             menu.SetActive(false);

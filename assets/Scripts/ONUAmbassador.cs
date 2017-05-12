@@ -16,6 +16,8 @@ public class ONUAmbassador : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         coll = GetComponent<Collider>();
+        if (coll == null)
+            coll = GetComponentInChildren<Collider>();
 
         Physics.gravity = Vector3.down * 50f;
         transform.position = GameManager.instance.RequestRandomWorldPos() + Vector3.up * 10f;

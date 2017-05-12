@@ -26,6 +26,8 @@ public class Immigrant : MonoBehaviour {
 		rb = GetComponent<Rigidbody> ();
 		nav = GetComponent<NavMeshAgent> ();
 		coll = GetComponent<Collider> ();
+        if (coll == null)
+            coll = GetComponentInChildren<Collider>();
 
         GameObject tempObjRef = GameObject.FindWithTag(country);
         if (tempObjRef != null) //if the country exists (which always should)
